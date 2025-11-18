@@ -7,6 +7,6 @@ export default defineConfig({
   },
   engine: "classic",
   datasource: {
-    url: "mysql://root:123123@localhost:3306/fisioapp",
+    url: "mysql://root@localhost:3306/fisioapp",
   },
 });

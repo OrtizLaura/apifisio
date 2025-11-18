@@ -1,6 +1,6 @@
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:123123@localhost:3306/fisioapp"
+  url      = "mysql://root@localhost:3306/fisioapp"
 }
 
 generator client {
@@ -12,36 +12,33 @@ model User {
   fullName  String
   email     String    @unique
   password  String
-  patients  Patient[]
   sessions  Session[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
 model Patient {
-  id          String    @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
   treatment   TreatmentType
   observation String?
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
   sessions    Session[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 model Session {
-  id          String    @id @default(uuid())
-  patient     Patient   @relation(fields: [patientId], references: [id])
-  patientId   String
-  user        User      @relation(fields: [userId], references: [id])
-  userId      String
-  treatment   TreatmentType
-  date        DateTime
-  time        String
-  status      SessionStatus @default(NONE)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String        @id @default(uuid())
+  patient   Patient       @relation(fields: [patientId], references: [id])
+  patientId String
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  treatment TreatmentType
+  date      DateTime
+  time      String
+  status    SessionStatus @default(NONE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 }
 
 enum TreatmentType {

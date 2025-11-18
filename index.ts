@@ -47,10 +47,10 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
 
 // Criar paciente
 app.post("/patients", async (req: Request, res: Response) => {
-  const { name, treatment, observation, userId } = req.body;
+  const { name, treatment, observation } = req.body;
   try {
     const patient = await prisma.patient.create({
-      data: { name, treatment, observation, userId },
+      data: { name, treatment, observation },
     });
     res.json(patient);
   } catch (e: any) {
