@@ -1,0 +1,19 @@
+{
+  "name": "fisio-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "json-server": "^1.0.0-beta.3",
+    "prisma": "^6.19.0"
+  }
+}
