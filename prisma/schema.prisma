@@ -28,17 +28,27 @@ model Patient {
 }
 
 model Session {
-  id        String        @id @default(uuid())
-  patient   Patient       @relation(fields: [patientId], references: [id])
-  patientId String
-  user      User          @relation(fields: [userId], references: [id])
-  userId    String
-  treatment TreatmentType
-  date      DateTime
-  time      String
-  status    SessionStatus @default(NONE)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  id              String         @id @default(uuid())
+  patient         Patient        @relation(fields: [patientId], references: [id])
+  patientId       String
+  user            User           @relation(fields: [userId], references: [id])
+  userId          String
+  treatment       TreatmentType
+  availableDate   AvailableDate? @relation(fields: [availableDateId], references: [id])
+  availableDateId String
+  time            String
+  status          SessionStatus  @default(NONE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model AvailableDate {
+  id        String    @id @default(uuid())
+  date      DateTime  @unique
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
 }
 
 enum TreatmentType {

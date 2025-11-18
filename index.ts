@@ -63,6 +63,19 @@ app.get("/patients", async (req: Request, res: Response) => {
   const patients = await prisma.patient.findMany();
   res.json(patients);
 });
+
+app.get("/patients/:id", async (req: Request, res: Response) => {
+  const id = req.params.id;
+  try {
+    const patient = await prisma.patient.findFirst({
+      where: { id },
+    });
+    res.status(200).send(patient);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
 app.delete("/patients/:id", async (req: Request, res: Response) => {
   const id = req.params.id;
   try {
@@ -77,19 +90,25 @@ app.delete("/patients/:id", async (req: Request, res: Response) => {
 
 // Criar sessão
 app.post("/sessions", async (req: Request, res: Response) => {
-  const { patientId, userId, treatment, date, time, status } = req.body;
+  const { patientId, userId, treatment, availableDateId, times, status } = req.body;
+  // times: string[] - array de horários
+
   try {
-    const session = await prisma.session.create({
-      data: {
-        patientId,
-        userId,
-        treatment,
-        date: new Date(date),
-        time,
-        status,
-      },
-    });
-    res.json(session);
+    const sessions = await Promise.all(
+      times.map((time: string) =>
+        prisma.session.create({
+          data: {
+            patientId,
+            userId,
+            treatment,
+            availableDateId,
+            time,
+            status,
+          },
+        })
+      )
+    );
+    res.json(sessions);
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }
@@ -97,11 +116,74 @@ app.post("/sessions", async (req: Request, res: Response) => {
 
 // Listar sessões
 app.get("/sessions", async (req: Request, res: Response) => {
-  const sessions = await prisma.session.findMany();
+  const sessions = await prisma.session.findMany({
+  include: {
+    patient: true,
+    availableDate: true
+  },
+
+  });
   res.json(sessions);
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// Criar data disponível
+app.post("/available-dates", async (req, res) => {
+  const { date } = req.body;
+  try {
+    const availableDate = await prisma.availableDate.create({
+      data: { date: new Date(date), isActive: true },
+    });
+    res.json(availableDate);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+// Listar datas disponíveis ativas
+app.get("/available-dates", async (req, res) => {
+  const dates = await prisma.availableDate.findMany({
+    where: { isActive: true },
+    orderBy: { date: "asc" },
+  });
+  res.json(dates);
+});
+// Atualizar status da data
+app.patch("/available-dates/:id", async (req, res) => {
+  const { id } = req.params;
+  const { isActive } = req.body;
+  try {
+    const updated = await prisma.availableDate.update({
+      where: { id },
+      data: { isActive },
+    });
+    res.json(updated);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+app.post("/available-dates/deactivate", async (req, res) => {
+  const { date } = req.body;
+  try {
+    // Buscar a data disponível pelo campo date
+    const availableDate = await prisma.availableDate.findUnique({
+      where: { date: new Date(date) },
+    });
+    if (!availableDate) {
+      return res.status(404).json({ error: "Data não encontrada" });
+    }
+    // Atualizar para isActive = false
+    const updated = await prisma.availableDate.update({
+      where: { id: availableDate.id },
+      data: { isActive: false },
+    });
+    res.json(updated);
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
 });
