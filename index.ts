@@ -88,10 +88,10 @@ app.delete("/patients/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Criar sessão
+
 app.post("/sessions", async (req: Request, res: Response) => {
   const { patientId, userId, treatment, availableDateId, times, status } = req.body;
-  // times: string[] - array de horários
+  
 
   try {
     const sessions = await Promise.all(
@@ -170,14 +170,14 @@ app.patch("/available-dates/:id", async (req, res) => {
 app.post("/available-dates/deactivate", async (req, res) => {
   const { date } = req.body;
   try {
-    // Buscar a data disponível pelo campo date
+   
     const availableDate = await prisma.availableDate.findUnique({
       where: { date: new Date(date) },
     });
     if (!availableDate) {
       return res.status(404).json({ error: "Data não encontrada" });
     }
-    // Atualizar para isActive = false
+    
     const updated = await prisma.availableDate.update({
       where: { id: availableDate.id },
       data: { isActive: false },
